@@ -8,7 +8,9 @@
 
 #### EntityManager
 - EntityManagerFactory는 JPA를 위한 기반 객체를 만들고 DB 커넥션 풀도 생성하므로 
-애플리케이션 전체에서 한 번만 생성하고 공유해서 사용하는 것이 좋다.  
+애플리케이션 전체에서 한 번만 생성하고 공유해서 사용하는 것이 좋다. EntityManager를 만드는 
+비용은 거의 들지 않는다.
+- EntityManagers는 여러 스레드가 동시에 접근하면 동시성 문제가 발생하므로 스레드 간에 공유하지 않는 것이 좋다.
 - EntityManager를 통해서 엔티티를 DB에 CRUD할 수 있다.
 
 ```java
@@ -28,3 +30,21 @@ class Ex {
 }
 ```
 
+#### Persistence Context
+- 엔티티를 영구 저장하는 환경
+- 엔티티를 식별자 값(@Id)으로 구분한다. 영속 상태는 식별자 값이 반드시 있어야 한다.
+- transaction commit 순간에 저장된 엔티티를 DB에 반영한다. (flush)
+- 여러 가지 좋은 기능들이 있다.
+  - 1차 캐시: 저장하기 전에 먼저 캐시에 저장해두고, 조회할 때도 먼저 캐시를 보고 없으면 조회 후에 1차 캐시에 저장한다.
+  - 동일성 보장
+  - 트랜잭션을 지원하는 쓰기 지연(transactional write-behind): 트랜잭션이 끝나기 전까지 CUD를 차곡차곡 모아두고 한 번에 실행한다.
+  - 변경 감지(dirty checking) aka @DynamicUpdate, @DynamicInsert
+    => 조회 시에 스냅샷을 찍어둔 엔티티를 트랜잭션 종료 시점과 비교해서 달라질 경우 변경
+  - 지연 로딩
+
+#### Entity의 생명주기
+![](images/entity_lifecycle.png)
+- 비영속(new/transient): persistence context와 관계가 없음
+- 영속(managed): persistence context에 저장된 상태
+- 준영속(detached): persistence context에 저장되었다가 분리된 상태
+- 삭제(removed): 삭제된 상태
