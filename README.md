@@ -48,3 +48,15 @@ class Ex {
 - 영속(managed): persistence context에 저장된 상태
 - 준영속(detached): persistence context에 저장되었다가 분리된 상태
 - 삭제(removed): 삭제된 상태
+
+#### PK
+엔티티는 식별자가 있어야 persistence context에 속할 수 있게 된다.
+다음과 같은 기본키 매핑 방법이 있다.
+- 직접 할당. em.persist()를 호출하기 전에 애플리케이션에서 식별자 값을 직접 할당한다.
+- SEQUENCE: DB 시퀀스를 활용해서 식별자 값을 획득한다.
+- TABLE: 시퀀스 생성용 테이블에서 식별자 값을 획득한다.
+- IDENTITY: PK AUTO_INCREMENT 기능이 있는 데이터베이스를 사용할 때 해당 기능을 활용해서 식별자 값을 획득한다. *데이터를 저장해야 식별자 값을 획득할 수 있다.
+
+
+#### 설정하기
+spring.jpa.hibernate.ddl-auto 상용 환경에서는 create, create-drop, update와 같은 옵션은 사용하지 않는 것이 좋다.
