@@ -42,12 +42,14 @@ class Ex {
     => 조회 시에 스냅샷을 찍어둔 엔티티를 트랜잭션 종료 시점과 비교해서 달라질 경우 변경
   - 지연 로딩
 
+
 #### Entity의 생명주기
 ![](images/entity_lifecycle.png)
 - 비영속(new/transient): persistence context와 관계가 없음
 - 영속(managed): persistence context에 저장된 상태
 - 준영속(detached): persistence context에 저장되었다가 분리된 상태
 - 삭제(removed): 삭제된 상태
+
 
 #### PK
 엔티티는 식별자가 있어야 persistence context에 속할 수 있게 된다.
@@ -60,3 +62,39 @@ class Ex {
 
 #### 설정하기
 spring.jpa.hibernate.ddl-auto 상용 환경에서는 create, create-drop, update와 같은 옵션은 사용하지 않는 것이 좋다.
+
+
+#### 연관관계
+테이블은 FK가 있으면 항상 양방향 관계가 된다.
+객체는 보통 단방향 관계가 성립되고 양방향 연관관계는 실질적으로 서로 다른 단방향 2개로 양방향 관계를 맺는다.
+```java
+// 단방향 연관관계
+class A { B b; }
+class B { }
+
+// 양방향 연관관계
+class A { B b; }
+class B { A a; }
+
+// a.getB(); => 그래프 탐색
+```
+
+연관관계의 주인은 테이블에 외래키가 있는 곳으로 정해야 한다.
+Member <-> Team의 관계에서는 Member가 주인이 된다.
+
+양방향 연관관계를 설정하면 양쪽에 모두 관계를 맺어주는 코드를 작성하는게 좋다.
+```java
+class Ex {
+    void biDirection() {
+        Team team = new Team("team1", "팀1");
+        em.persist(team1);
+        
+        Member member1 = new Member("member1", "회원1");
+        
+        member1.setTeam(team); // member1 -> team1
+        team1.getMembers().add(member1); // team1 -> member1 .. 주인이 아니므로 저장시에는 사용되지 않음
+        em.persist(member1);
+    }
+}
+```
+양방향 연관관계를 유지하기 위해서는 추가, 삭제를 할 때마다 수고가 더 들게 된다.
